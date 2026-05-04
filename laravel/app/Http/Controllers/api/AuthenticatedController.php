@@ -32,9 +32,9 @@ class AuthenticatedController extends Controller
 
             $user = User::create($input);
 
-            return new ApiResponse(true, 'User registered successfully', $user, 201);
+            return ApiResponse::toJson(true, 'User registered successfully', $user, 201);
         } catch (\Exception $e) {
-            return new ApiResponse(false, 'User registration failed', $e->getMessage(), 500);
+            return ApiResponse::toJson(false, 'User registration failed', $e->getMessage(), 500);
         }
     }
 
@@ -61,9 +61,9 @@ class AuthenticatedController extends Controller
                 'user' => $user
             ];
 
-            return new ApiResponse(true, 'User logged in successfully', $data, 200);
+            return ApiResponse::toJson(true, 'User logged in successfully', $data, 200);
         } catch (\Exception $e) {
-            return new ApiResponse(false, 'User logged in failed', $e->getMessage(), 500);
+            return ApiResponse::toJson(false, 'User logged in failed', $e->getMessage(), 500);
         }
     }
     public function logout(Request $request)
@@ -71,9 +71,9 @@ class AuthenticatedController extends Controller
         try {
             $request->user()->currentAccessToken()->delete();
 
-            return new ApiResponse(true, 'User logged out successfully', null, 200);
+            return ApiResponse::toJson(true, 'User logged out successfully', null, 200);
         } catch (\Exception $e) {
-            return new ApiResponse(false, 'User logged out failed', $e->getMessage(), 500);
+            return ApiResponse::toJson(false, 'User logged out failed', $e->getMessage(), 500);
         }
     }
 }

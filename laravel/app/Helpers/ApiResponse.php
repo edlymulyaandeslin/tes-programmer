@@ -4,14 +4,12 @@ namespace App\Helpers;
 
 class ApiResponse
 {
-    public function __construct(private bool $success, private string $message, private mixed $data = null, private int $statusCode) {}
-
-    public function toJson()
+    static function toJson(bool $success, string $message, mixed $data = null, int $statusCode = 200)
     {
         return response()->json([
-            'success' => $this->success,
-            'message' => $this->message,
-            'data' => $this->data,
-        ], $this->statusCode);
+            'success' => $success,
+            'message' => $message,
+            'data' => $data,
+        ], $statusCode);
     }
 }
