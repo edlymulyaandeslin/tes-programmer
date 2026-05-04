@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # 1. Database
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: my_database
+      MYSQL_ROOT_PASSWORD: secret_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # 2. Backend Laravel
+  backend:
+    build:
+      context: ./laravel-app
+      dockerfile: Dockerfile
+    volumes:
+      - ./laravel-app:/var/www/html
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  # 3. Laravel Migration (Tugas Sekali Jalan)
+  migration:
+    build:
+      context: ./laravel-app
+    volumes:
+      - ./laravel-app:/var/www/html
+    depends_on:
+      - db
+    # Perintah ini akan menjalankan migrasi lalu kontainernya mati sendiri (exit)
+    command: php artisan migrate --force
+
+  # 4. Frontend Next.js
+  frontend:
+    build:
+      context: ./nextjs-app
+    volumes:
+      - ./nextjs-app:/app
+      - /app/node_modules # Agar node_modules di container tidak tertimpa lokal
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
