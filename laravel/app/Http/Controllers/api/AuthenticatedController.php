@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -31,17 +32,9 @@ class AuthenticatedController extends Controller
 
             $user = User::create($input);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User registered successfully',
-                'data' => $user,
-            ], 201);
+            return new ApiResponse(true, 'User registered successfully', $user, 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User registration failed',
-                'data' => json_decode($e->getMessage()),
-            ], 500);
+            return new ApiResponse(false, 'User registration failed', $e->getMessage(), 500);
         }
     }
 
@@ -57,7 +50,6 @@ class AuthenticatedController extends Controller
                 throw new \Exception($validators->errors());
             }
 
-
             if (!Auth::attempt($request->only(['email', 'password']))) {
                 throw new \Exception('Invalid email or password');
             }
@@ -69,17 +61,9 @@ class AuthenticatedController extends Controller
                 'user' => $user
             ];
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User logged in successfully',
-                'data' => $data,
-            ], 200);
+            return new ApiResponse(true, 'User logged in successfully', $data, 200);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User logged in failed',
-                'data' => $e->getMessage(),
-            ], 500);
+            return new ApiResponse(false, 'User logged in failed', $e->getMessage(), 500);
         }
     }
     public function logout(Request $request)
@@ -87,16 +71,9 @@ class AuthenticatedController extends Controller
         try {
             $request->user()->currentAccessToken()->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User logged out successfully',
-            ], 200);
+            return new ApiResponse(true, 'User logged out successfully', null, 200);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User logged out failed',
-                'data' => $e->getMessage(),
-            ], 500);
+            return new ApiResponse(false, 'User logged out failed', $e->getMessage(), 500);
         }
     }
 }
