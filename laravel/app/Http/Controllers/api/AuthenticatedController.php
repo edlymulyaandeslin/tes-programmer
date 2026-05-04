@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -57,11 +58,12 @@ class AuthenticatedController extends Controller
                 throw new \Exception($validators->errors());
             }
 
-            $user = User::where('email', $request->email)->first();
 
-            if (!$user || !Hash::check($request->password, $user->password)) {
+            if (!Auth::attempt($request->only(['email', 'password']))) {
                 throw new \Exception('Invalid email or password');
             }
+
+            $user = User::where('email', $request->email)->first();
 
             $data = [
                 'token' => $user->createToken('auth_token')->plainTextToken,
