@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 use function Pest\Laravel\json;
@@ -46,7 +47,39 @@ class AuthenticatedController extends Controller
 
     public function login(Request $request)
     {
-        // logic login
+        try {
+            $validators = Validator::make($request->all(), [
+                'email' => 'required|email',
+                'password' => 'required|string',
+            ]);
+
+            if ($validators->fails()) {
+                throw new \Exception($validators->errors());
+            }
+
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                throw new \Exception('Invalid email or password');
+            }
+
+            $data = [
+                'token' => $user->createToken('auth_token')->plainTextToken,
+                'user' => $user
+            ];
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User logged in successfully',
+                'data' => $data,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User logged in failed',
+                'data' => $e->getMessage(),
+            ], 500);
+        }
     }
     public function logout(Request $request)
     {
