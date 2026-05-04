@@ -83,6 +83,19 @@ class AuthenticatedController extends Controller
     }
     public function logout(Request $request)
     {
-        // logic logout
+        try {
+            $request->user()->currentAccessToken()->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User logged out successfully',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User logged out failed',
+                'data' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
