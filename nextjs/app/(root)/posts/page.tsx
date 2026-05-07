@@ -1,13 +1,57 @@
+'use client';
+
+import Loader from '@/components/Loader';
+import Pagination from '@/components/Pagination';
+import { useAuth } from '@/context/auth';
 import { api } from '@/lib/api';
 import { IPost } from '@/model/post.model';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-const Page = async () => {
-  const { success, data } = await api.posts.getAll();
+const Page = () => {
+  const { isLoggedIn, user } = useAuth();
+  const searchParams = useSearchParams();
+  const page = searchParams.get('page') || '1';
+  const [posts, setPosts] = useState<any>([]);
+  const [loading, setLoading] = useState(false);
+  console.log(posts);
 
-  if (!success || !data) return null;
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        setLoading(true);
 
-  const posts = data.data!;
+        const { success, data } = await api.posts.getAll(Number(page));
+
+        if (!success || !data) return;
+
+        setPosts(data);
+      } catch (err) {
+        setLoading(false);
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadPosts();
+  }, [page]);
+
+  const handleDelete = async (id: number) => {
+    const confim = confirm('Anda yakin ingin menghapus data ini?');
+
+    if (!confim) return;
+
+    const { success, message } = await api.posts.delete(String(id));
+
+    if (success) {
+      alert(message);
+      window.location.reload();
+    } else {
+      alert(message);
+      console.error(message);
+    }
+  };
 
   return (
     <>
@@ -18,41 +62,75 @@ const Page = async () => {
           Create Post
         </Link>
       </div>
+
       <div className="overflow-x-auto">
         <table className="table">
           {/* head */}
           <thead>
             <tr>
               <th>No</th>
-              <th>Title</th>
               <th>Author</th>
+              <th>Title</th>
               <th>Content</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            {posts.map((post: IPost, index: number) => (
+            {posts?.data?.map((post: IPost, index: number) => (
               <tr key={post.id}>
-                <th>{index + 1}</th>
-                <td>{post.title}</td>
+                <th>{posts?.from + index}</th>
                 <td>{post.author?.name}</td>
+                <td>{post.title}</td>
                 <td className="line-clamp-2">{post.content}</td>
                 <td>
-                  <div className="flex gap-1 items-center justify-center">
+                  <div className="flex gap-1 items-center justify-start">
                     <Link
                       href={`/posts/${post.id}`}
                       className="btn btn-dash btn-sm"
                     >
                       Detail
                     </Link>
-                    <button className="btn btn-primary btn-sm">Edit</button>
-                    <button className="btn btn-danger btn-sm ">Delete</button>
+                    {isLoggedIn && user?.id === post.author_id && (
+                      <>
+                        <Link
+                          href={`/posts/${post.id}/edit`}
+                          className="btn btn-dash btn-sm"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          className="btn btn-error btn-sm"
+                          onClick={() => handleDelete(post.id)}
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>
             ))}
+            {loading && (
+              <tr>
+                <td colSpan={5}>
+                  <Loader />
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
+
+        {posts?.data && posts?.data?.length > 0 && (
+          <Pagination
+            prevLink={posts?.prev_page_url}
+            nextLink={posts?.next_page_url}
+            currentPage={posts?.current_page}
+            from={posts?.from}
+            to={posts?.to}
+            total={posts?.total}
+            lastPage={posts?.last_page}
+          />
+        )}
       </div>
     </>
   );

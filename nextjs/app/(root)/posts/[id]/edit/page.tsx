@@ -3,12 +3,14 @@
 import { useAuth } from '@/context/auth';
 import { api } from '@/lib/api';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-const Create = () => {
-  const { isLoggedIn, user } = useAuth();
+const Edit = () => {
+  const { id } = useParams();
+  const { isLoggedIn, token, user } = useAuth();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -22,27 +24,57 @@ const Create = () => {
 
     if (!isLoggedIn || !user) return router.push('/login');
 
+    setLoading(true);
+
     const formData = {
-      author_id: user.id,
       title,
       content,
     };
 
-    const { success, message, data } = await api.posts.create(formData);
+    const { success, message, data } = await api.posts.update(
+      String(id),
+      formData,
+    );
 
     if (success) {
       alert(message);
+      setLoading(false);
       router.push('/posts');
     } else {
+      setLoading(false);
       setErrors(JSON.parse(data));
       alert(message);
     }
   };
 
+  useEffect(() => {
+    const loadPost = async () => {
+      if (!isLoggedIn || !token) {
+        return;
+      }
+
+      try {
+        const { success, data } = await api.posts.getById(String(id));
+
+        if (!success || !data) {
+          alert('Post not found');
+          return;
+        }
+
+        setTitle(data.title);
+        setContent(data.content);
+      } catch (err) {
+        console.error('Error loading post:', err);
+      }
+    };
+
+    loadPost();
+  }, [id, isLoggedIn, token]);
+
   return (
     <>
       <div className="space-y-4 flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-bold mb-10">Create New Post</h1>
+        <h1 className="text-3xl font-bold mb-10">Edit New Post</h1>
 
         <form
           onSubmit={handleSubmit}
@@ -54,6 +86,7 @@ const Create = () => {
               type="text"
               className="input w-full"
               placeholder="Type here"
+              value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
             {errors.title && <p className="text-red-500">{errors.title[0]}</p>}
@@ -64,6 +97,7 @@ const Create = () => {
             <textarea
               className="textarea h-24 w-full"
               placeholder="Description"
+              value={content}
               onChange={(e) => setContent(e.target.value)}
             ></textarea>
             {errors.content && (
@@ -85,4 +119,4 @@ const Create = () => {
   );
 };
 
-export default Create;
+export default Edit;

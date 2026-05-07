@@ -2,18 +2,18 @@
 
 import { useAuth } from '@/context/auth';
 import { api } from '@/lib/api';
+import { deleteTokenFromCookie } from '@/utils';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 const Navbar = () => {
   const router = useRouter();
-  const { isLoggedIn, token, user } = useAuth();
+  const { isLoggedIn, user } = useAuth();
 
   const handleLogout = async () => {
-    const { success } = await api.auth.logout(token);
+    const { success } = await api.auth.logout();
     if (success) {
-      cookieStore.delete('token');
-      cookieStore.delete('user');
+      await deleteTokenFromCookie();
       router.push('/login');
     }
   };
@@ -34,7 +34,7 @@ const Navbar = () => {
               </li>
               <li>
                 <details>
-                  <summary className="capitalize">{user.name}</summary>
+                  <summary className="capitalize">{user?.name || 'User'}</summary>
                   <ul className="bg-base-100 rounded-t-none p-2">
                     <li>
                       <button onClick={handleLogout}>Logout</button>

@@ -2,24 +2,39 @@
 
 import { useEffect, useState } from 'react';
 
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  // tambahkan field lain sesuai model User Laravel
+}
+
 export const useAuth = () => {
-  const [auth, setAuth] = useState({
+  const [auth, setAuth] = useState<{
+    isLoggedIn: boolean;
+    token: string;
+    user: User | null;
+  }>({
     isLoggedIn: false,
-    token: null,
+    token: '',
     user: null,
   });
 
   useEffect(() => {
     const loadAuth = async () => {
-      const token = await cookieStore.get('token');
-      const user = await cookieStore.get('user');
+      try {
+        const tokenCookie = await cookieStore.get('token');
+        const userCookie = await cookieStore.get('user');
 
-      if (token?.value && user?.value) {
-        setAuth({
-          isLoggedIn: true,
-          token: token.value,
-          user: JSON.parse(user.value),
-        });
+        if (tokenCookie?.value && userCookie?.value) {
+          setAuth({
+            isLoggedIn: true,
+            token: tokenCookie.value,
+            user: JSON.parse(userCookie.value),
+          });
+        }
+      } catch (error) {
+        console.error('Error loading auth:', error);
       }
     };
 

@@ -1,3 +1,5 @@
+import { IUser } from '@/model/user.model';
+
 export const dateForHuman = (date: string | Date): string => {
   const targetDate = typeof date === 'string' ? new Date(date) : date;
 
@@ -33,4 +35,35 @@ export const dateForHuman = (date: string | Date): string => {
   }
 
   return 'baru saja';
+};
+
+export const getTokenFromCookie = async (): Promise<string | null> => {
+  try {
+    const cookie = await cookieStore.get('token');
+    return cookie?.value ?? null;
+  } catch (error) {
+    console.error('Error getting token from cookie:', error);
+    return null;
+  }
+};
+
+export const deleteTokenFromCookie = async (): Promise<void> => {
+  try {
+    await cookieStore.delete('token');
+    await cookieStore.delete('user');
+  } catch (error) {
+    console.error('Error deleting token from cookie:', error);
+  }
+};
+
+export const setTokenToCookie = async (
+  token: string,
+  user: IUser,
+): Promise<void> => {
+  try {
+    await cookieStore.set('token', token);
+    await cookieStore.set('user', JSON.stringify(user));
+  } catch (error) {
+    console.error('Error setting token in cookie:', error);
+  }
 };

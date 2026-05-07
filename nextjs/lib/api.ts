@@ -1,4 +1,5 @@
 import { IPost } from '@/model/post.model';
+import { getTokenFromCookie } from '@/utils';
 import { fetchHandler } from './handler/fetch';
 import { LoginPayload, RegisterPayload } from './payload';
 
@@ -17,36 +18,68 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
-    logout: (token: string) =>
-      fetchHandler(`${API_BASE_URL}/logout`, {
+    logout: async () => {
+      const token = await getTokenFromCookie();
+
+      return fetchHandler(`${API_BASE_URL}/logout`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }),
+      });
+    },
   },
   posts: {
-    getAll: () =>
-      fetchHandler(`${API_BASE_URL}/posts`, {
+    getAll: async (page: number = 1) => {
+      const token = await getTokenFromCookie();
+      return fetchHandler(`${API_BASE_URL}/posts?page=${page}`, {
         method: 'GET',
-      }),
-    getById: (id: string) =>
-      fetchHandler(`${API_BASE_URL}/posts/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    getById: async (id: string) => {
+      const token = await getTokenFromCookie();
+
+      return fetchHandler(`${API_BASE_URL}/posts/${id}`, {
         method: 'GET',
-      }),
-    create: (data: Partial<IPost>) =>
-      fetchHandler(`${API_BASE_URL}/posts`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    create: async (data: Partial<IPost>) => {
+      const token = await getTokenFromCookie();
+
+      return fetchHandler(`${API_BASE_URL}/posts`, {
         method: 'POST',
         body: JSON.stringify(data),
-      }),
-    update: (id: string, data: Partial<IPost>) =>
-      fetchHandler(`${API_BASE_URL}/posts/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    update: async (id: string, data: Partial<IPost>) => {
+      const token = await getTokenFromCookie();
+
+      return fetchHandler(`${API_BASE_URL}/posts/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
-      }),
-    delete: (id: string) =>
-      fetchHandler(`${API_BASE_URL}/posts/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    delete: async (id: string) => {
+      const token = await getTokenFromCookie();
+
+      return fetchHandler(`${API_BASE_URL}/posts/${id}`, {
         method: 'DELETE',
-      }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
   },
 };

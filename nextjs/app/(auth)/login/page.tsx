@@ -1,6 +1,7 @@
 'use client';
 
 import { api } from '@/lib/api';
+import { setTokenToCookie } from '@/utils';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -29,8 +30,7 @@ const Login = () => {
       setPassword('');
       alert('Login berhasil!');
 
-      cookieStore.set('token', data.token);
-      cookieStore.set('user', JSON.stringify(data.user));
+      await setTokenToCookie(data.token, data.user);
       router.push('/');
     } else {
       const isString = data === 'Invalid email or password';
