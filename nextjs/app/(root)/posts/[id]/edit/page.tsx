@@ -1,5 +1,6 @@
 'use client';
 
+import Loader from '@/components/Loader';
 import { useAuth } from '@/context/auth';
 import { api } from '@/lib/api';
 import Link from 'next/link';
@@ -10,7 +11,7 @@ const Edit = () => {
   const { id } = useParams();
   const { isLoggedIn, token, user } = useAuth();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -58,6 +59,13 @@ const Edit = () => {
 
         if (!success || !data) {
           alert('Post not found');
+          router.push('/posts');
+          return;
+        }
+
+        if (user?.id !== data.author_id) {
+          alert('Unauthorized action');
+          router.push('/posts');
           return;
         }
 
@@ -69,7 +77,7 @@ const Edit = () => {
     };
 
     loadPost();
-  }, [id, isLoggedIn, token]);
+  }, [id, isLoggedIn, token, user]);
 
   return (
     <>
@@ -110,7 +118,7 @@ const Edit = () => {
               <Link href={'/posts'}>Kembali</Link>
             </button>
             <button className="btn btn-primary" type="submit">
-              Submit
+              {loading ? <Loader /> : 'Submit'}
             </button>
           </div>
         </form>

@@ -6,11 +6,12 @@ import { api } from '@/lib/api';
 import { IPost } from '@/model/post.model';
 import { dateForHuman } from '@/utils';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const DetailPost = () => {
   const { id } = useParams();
+  const router = useRouter();
   const { isLoggedIn, token } = useAuth();
   const [post, setPost] = useState<IPost | null>(null);
   const [loading, setLoading] = useState(false);
@@ -29,6 +30,7 @@ const DetailPost = () => {
 
         if (!success || !data) {
           alert('Post not found');
+          router.push('/posts');
           return;
         }
 

@@ -37,7 +37,12 @@ const Page = () => {
     loadPosts();
   }, [page]);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: number, author_id: number) => {
+    if (user?.id !== author_id) {
+      alert('Unauthorized action');
+      return;
+    }
+
     const confim = confirm('Anda yakin ingin menghapus data ini?');
 
     if (!confim) return;
@@ -100,7 +105,7 @@ const Page = () => {
                         </Link>
                         <button
                           className="btn btn-error btn-sm"
-                          onClick={() => handleDelete(post.id)}
+                          onClick={() => handleDelete(post.id, post.author_id)}
                         >
                           Delete
                         </button>
