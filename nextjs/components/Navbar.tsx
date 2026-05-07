@@ -26,15 +26,17 @@ const Navbar = () => {
         </Link>
       </div>
       <div className="flex-none">
-        <ul className="menu menu-horizontal px-1">
+        <ul className="menu menu-horizontal px-4">
           {isLoggedIn ? (
             <>
               <li>
-                <Link href={'/posts'}>Post</Link>
+                <Link href={'/posts'}>Posts</Link>
               </li>
               <li>
                 <details>
-                  <summary className="capitalize">{user?.name || 'User'}</summary>
+                  <summary className="capitalize">
+                    {user?.name || 'User'}
+                  </summary>
                   <ul className="bg-base-100 rounded-t-none p-2">
                     <li>
                       <button onClick={handleLogout}>Logout</button>
