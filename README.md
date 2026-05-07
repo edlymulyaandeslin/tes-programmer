@@ -38,10 +38,10 @@ php artisan migrate --seed
 php artisan serve
 ```
 
-## CATATAN KHUSUS
+## CATATAN KHUSUS LARAVEL
 
-1. Menggunakan custom response api agar format response apinya tetap konsisten.
-2. Menggunakan api resource, agar jika suatu saat membutuhkan custome field yang perlu ditampilkan cukup dengan menambah fieldnya di api resource, tidak perlu mengubah controller dan route.
+1. Menggunakan helper custom response api agar format response apinya tetap konsisten.
+2. Menggunakan api resource, agar jika suatu saat membutuhkan custom field tambahan, cukup dengan menambah fieldnya di api resource, tidak perlu mengubah controller dan route.
 
 ## SETUP INSTALLATION NEXTJS
 
@@ -64,7 +64,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api
 npm run dev / yarn dev
 ```
 
-## CATATAN KHUSUS
+## CATATAN KHUSUS NEXTJS
 
 1. Menggunakan Cookie untuk menyimpan status login user
 2. Membuat api service untuk menghandle semua request api ke backend
