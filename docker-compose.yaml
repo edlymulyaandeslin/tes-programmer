@@ -1,54 +1,47 @@
-version: '3.8'
-
 services:
-  # 1. Database
+  # 1. Komputer untuk Database (MySQL)
   db:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_DATABASE: my_database
-      MYSQL_ROOT_PASSWORD: secret_password
+      # Nama database dan password harus sama dengan yang ada di file .env Laravel
+      MYSQL_DATABASE: tes_programmer
+      MYSQL_ROOT_PASSWORD: 159357
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
 
-  # 2. Backend Laravel
+  # 2. Komputer untuk Backend (Laravel)
   backend:
     build:
-      context: ./laravel-app
+      context: ./laravel
       dockerfile: Dockerfile
     volumes:
-      - ./laravel-app:/var/www/html
+      # Nyambungin folder 'laravel' di laptop kamu ke folder /var/www/html di Docker
+      # Jadi kalau kamu ngedit file di laptop, di Docker juga otomatis ke-edit
+      - ./laravel:/var/www/html
     depends_on:
       - db
     ports:
       - "8000:8000"
 
-  # 3. Laravel Migration (Tugas Sekali Jalan)
-  migration:
-    build:
-      context: ./laravel-app
-    volumes:
-      - ./laravel-app:/var/www/html
-    depends_on:
-      - db
-    # Perintah ini akan menjalankan migrasi lalu kontainernya mati sendiri (exit)
-    command: php artisan migrate --force
-
-  # 4. Frontend Next.js
+  # 3. Komputer untuk Frontend (Next.js)
   frontend:
     build:
-      context: ./nextjs-app
+      context: ./nextjs
+      dockerfile: Dockerfile
     volumes:
-      - ./nextjs-app:/app
-      - /app/node_modules # Agar node_modules di container tidak tertimpa lokal
+      # Nyambungin folder 'nextjs' di laptop kamu ke folder /app di Docker
+      - ./nextjs:/app
+      - /app/node_modules # Biar folder node_modules di laptop nggak nabrak yang di Docker
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
     depends_on:
       - backend
 
 volumes:
+  # Buat nyimpen data database MySQL secara permanen biar nggak hilang kalau laptop mati
   db_data:
